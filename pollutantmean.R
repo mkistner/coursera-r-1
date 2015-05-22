@@ -26,5 +26,9 @@ pollutantmean <- function(directory, pollutant, id = 1:332) {
     temp <- read.csv(full_directories[i])
     all_data[i] <- temp[pollutant]
   }
-  all_data
+  
+  ## calculate the mean
+  all_data2 <- unlist(all_data)
+  
+  result <- mean(all_data2, na.rm=TRUE)
 }
