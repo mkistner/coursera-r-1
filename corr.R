@@ -13,25 +13,30 @@ corr <- function(directory, threshold = 0) {
   ## import the stringr package
   library(stringr)
   ## zero-pad the id's
+  id = 1:332
   padded_ids <- str_pad(id, 3, "0", side="left")
   ## now get full directories
   full_directories <- paste(directory, "/", padded_ids, ".csv", sep="")
   
   ## list which id's meet threshold requirement
   comp = complete(directory)
-  id = 1:332
-  use_id = id[comp >= threshold]
   
-  ## get all relevant data
-  sulfates <- numeric(length(use_id)) # pre-allocate
-  nitrates <- numeric(length(use_id))
-  for (i in 1:length(id)) {
-    temp <- read.csv(full_directories[i])
-    sulfates[i] <- temp[,'sulfate']
-    nitrates[i] <- temp[,'nitrate']
+  use_id = id[comp["nobs"] > threshold]
+  if (length(use_id) > 0) { # if non-empty
+    ## get all relevant data
+    #sulfates <- numeric(length(use_id)) # pre-allocate
+    #nitrates <- numeric(length(use_id))
+    result <- numeric(length(use_id))
+    for (i in 1:length(use_id)) {
+      temp <- read.csv(full_directories[use_id[i]])
+      #sulfates[i] <- temp['sulfate']
+      #nitrates[i] <- temp['nitrate']
+      temp_cor <- cor(temp['sulfate'], temp['nitrate'], use="na.or.complete")
+      result[i] <- temp_cor
+    }
   }
-  all_sulfates <- unlist(sulfates)
-  all_nitrates <- unlist(nitrates)
-  
-  result = cor(all_sulfates, all_nitrates, use="complete.obs")
+  else {
+    result = numeric()
+  }
+  result
 }
